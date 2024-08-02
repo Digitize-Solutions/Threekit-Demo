@@ -111,14 +111,15 @@
             Explode
           </span>
         </button>
-      </div>
-      <!--- <button class="pushable" id="explode" onclick="Close()">
+    
+      <button class="pushable" id="explode" onclick="Implode()">
         <span class="shadow"></span>
         <span class="edge"></span>
         <span class="front">
-          Reset
+          Implode 
         </span> 
-         </button> -->
+         </button>
+        </div>
       <div class="column">
         <button class="pushable" id="myCheck" onclick="Reset()">
           <span class="shadow"></span>
@@ -228,11 +229,11 @@
       });
     }
 
-    // function Close() {
-    //   configurator.setConfiguration({
-    //     Explode: false,
-    //   });
-    // }
+     function Implode() {
+      configurator.setConfiguration({
+       Explode: false,
+      });
+    }
 
   </script>
 </body>
