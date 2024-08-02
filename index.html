@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Threekit Demo</title>
+  <style>
+    .containter {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pushable {
+      width: 200px;
+      margin: 10px 0;
+      position: relative;
+      background: transparent;
+      padding: 0px;
+      border: none;
+      cursor: pointer;
+      outline-offset: 4px;
+      outline-color: deeppink;
+      transition: filter 250ms;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    .shadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: hsl(226, 25%, 69%);
+      border-radius: 8px;
+      filter: blur(2px);
+      will-change: transform;
+      transform: translateY(2px);
+      transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    }
+
+    .edge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      border-radius: 8px;
+      background: linear-gradient(to right,
+          hsl(248, 39%, 39%) 0%,
+          hsl(248, 39%, 49%) 8%,
+          hsl(248, 39%, 39%) 92%,
+          hsl(248, 39%, 29%) 100%);
+    }
+
+    .front {
+      display: block;
+      position: relative;
+      border-radius: 8px;
+      background: hsl(248, 53%, 58%);
+      padding: 16px 32px;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 1rem;
+      transform: translateY(-4px);
+      transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    }
+
+    .pushable:hover {
+      filter: brightness(110%);
+    }
+
+    .pushable:hover .front {
+      transform: translateY(-6px);
+      transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+
+    .pushable:active .front {
+      transform: translateY(-2px);
+      transition: transform 34ms;
+    }
+
+    .pushable:hover .shadow {
+      transform: translateY(4px);
+      transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+
+    .pushable:active .shadow {
+      transform: translateY(1px);
+      transition: transform 34ms;
+    }
+
+    .pushable:focus:not(:focus-visible) {
+      outline: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="containter">
+    <div id="player" style="height: 600px; width: 60vw"></div>
+    <div class="container">
+      <h1>Threekit Demo</h1>
+      <div class="column">
+        <button class="pushable" id="explode" onclick="Explode()">
+          <span class="shadow"></span>
+          <span class="edge"></span>
+          <span class="front">
+            Explode
+          </span>
+        </button>
+      </div>
+      <!--- <button class="pushable" id="explode" onclick="Close()">
+        <span class="shadow"></span>
+        <span class="edge"></span>
+        <span class="front">
+          Reset
+        </span> 
+         </button> -->
+      <div class="column">
+        <button class="pushable" id="myCheck" onclick="Reset()">
+          <span class="shadow"></span>
+          <span class="edge"></span>
+          <span class="front">
+            Reset
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="https://preview.threekit.com/app/js/threekit-player.js"></script>
+  <script>
+    const findHitItem = (hitNodes) => {
+      if (!hitNodes.length) return undefined;
+      const hierarchy = [...hitNodes[0].hierarchy];
+      hierarchy.reverse();
+      return hierarchy.find((el) => el.type === "Model") || undefined;
+    };
+
+    const models = [
+      "Tail_Shaft_Assembly",
+      "Track_Chain_Assembly",
+      "Track_Chain_Assembly",
+      "Head_Shaft_Assembly",
+      "Drive_Assembly",
+      "Carry_Roller_Assembly",
+      "Group_2_A",
+      "Group_1",
+    ];
+
+    window
+      .threekitPlayer({
+        authToken: "50011bad-6480-4ec7-a317-5fcb3882dc96",
+        el: document.getElementById("player"),
+        assetId: "73ac7292-cd0a-407c-8f87-7034794b2344",
+        showConfigurator: false,
+        showAR: true,
+      })
+      .then(async function (player) {
+        window.player = player;
+        window.configurator = await player.getConfigurator();
+
+        player.tools.addTool({
+          key: "partSelect",
+          label: "Part Select Tool",
+          active: true,
+          enabled: true,
+          handlers: {
+            click: async (ev) => {
+              const hits = ev.hitNodes;
+              const nodeId = hits && hits.length > 0 && hits[0].nodeId;
+              const parentModel = findHitItem(ev.hitNodes);
+
+              if (nodeId) {
+                const selectable = await player.scene.get({
+                  id: nodeId,
+                  plug: "Properties",
+                  property: "selectable",
+                });
+
+                if (selectable || typeof selectable === "undefined") {
+                  player.selectionSet.set(nodeId);
+                  player.selectionSet.add(parentModel.nodeId);
+                  const selectedModelNode = parentModel.name;
+
+                  configurator.setConfiguration({
+                    SelectedNode: selectedModelNode,
+                  });
+
+                } else {
+                  player.selectionSet.clear();
+
+                }
+              } else {
+                player.selectionSet.clear();
+
+              }
+            },
+          },
+        });
+
+        const updateVisibility = (selectedNode) => {
+          models.forEach((model) => {
+            player.scene.set(
+              {
+                name: model,
+                plug: "Properties",
+                property: "visible",
+                hierarchical: true,
+              },
+              model === selectedNode
+            );
+          });
+        };
+      });
+
+    function Reset() {
+      configurator.setConfiguration({
+        SelectedNode: '',
+      });
+    }
+
+    function Explode() {
+      configurator.setConfiguration({
+        Explode: true,
+      });
+    }
+
+    // function Close() {
+    //   configurator.setConfiguration({
+    //     Explode: false,
+    //   });
+    // }
+
+  </script>
+</body>
+
+</html>
