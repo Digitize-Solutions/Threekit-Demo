@@ -188,6 +188,17 @@
                  player.selectionSet.setStyle({ outlineColor: '#00ff00', outlineThickness: 1, color: '#ff0000', opacity: 0.5 });
                   const selectedModelNode = parentModel.name;
 
+                  switch (selectedModelNode) {
+                case "Drive_Assembly":
+                  configurator.setConfiguration({ Camera: "Drive_Assembly_Cam" });
+                  break;
+                // case "Track_Chain_Assembly":
+                //   configurator.setConfiguration({ Camera: "Track_Chain_Cam" });
+                //   break;
+                default:
+                configurator.setConfiguration({ Camera: "Main_Camera" });
+              }
+
                   configurator.setConfiguration({
                     SelectedNode: selectedModelNode,
                   });
@@ -222,6 +233,7 @@
     function Reset() {
       configurator.setConfiguration({
         SelectedNode: '',
+        Camera: 'Main_Camera',
         
       });
       player.selectionSet.clear();
