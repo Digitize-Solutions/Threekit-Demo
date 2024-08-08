@@ -111,15 +111,15 @@
             Explode
           </span>
         </button>
-    
-      <button class="pushable" id="explode" onclick="Implode()">
-        <span class="shadow"></span>
-        <span class="edge"></span>
-        <span class="front">
-          Implode 
-        </span> 
-         </button>
-        </div>
+
+        <button class="pushable" id="explode" onclick="Implode()">
+          <span class="shadow"></span>
+          <span class="edge"></span>
+          <span class="front">
+            Implode
+          </span>
+        </button>
+      </div>
       <div class="column">
         <button class="pushable" id="myCheck" onclick="Reset()">
           <span class="shadow"></span>
@@ -180,28 +180,37 @@
                   plug: "Properties",
                   property: "selectable",
                 });
-
+                // if(player.getConfigurator().value.getConfiguration()["Explode"]){
                 if (selectable || typeof selectable === "undefined") {
                   player.selectionSet.set(nodeId);
-                 // player.selectionSet.add(parentModel.nodeId);
-                 //player.selectionSet.clear();
-                 player.selectionSet.setStyle({ outlineColor: '#00ff00', outlineThickness: 1, color: '#ff0000', opacity: 0.5 });
+                  // player.selectionSet.add(parentModel.nodeId);
+                  //player.selectionSet.clear();
+                  player.selectionSet.setStyle({ outlineColor: '#00ff00', outlineThickness: 1, color: '#ff0000', opacity: 0.5 });
                   const selectedModelNode = parentModel.name;
-
+                  console.log("selectedModelNode1st",selectedModelNode)
                   switch (selectedModelNode) {
-                case "Drive_Assembly":
-                  configurator.setConfiguration({ Camera: "Drive_Assembly_Cam" });
-                  break;
-                // case "Track_Chain_Assembly":
-                //   configurator.setConfiguration({ Camera: "Track_Chain_Cam" });
-                //   break;
-                default:
-                configurator.setConfiguration({ Camera: "Main_Camera" });
-              }
+                    case "Drive_Assembly":
+                      configurator.setConfiguration({ Camera: "Drive_Assembly_Cam" });
+                      break;
+                    case "Head_Shaft_Assembly":
+                      console.log("selectedModelNode",selectedModelNode)
+                      configurator.setConfiguration({ Camera: "Head_Shaft_Assembly_Cam" });
+                      console.log("head hello",)
+                      break;
+                      case "Tail_Shaft_Assembly":
+                      configurator.setConfiguration({ Camera: "Tail_Shaft_Assembly_Cam" });
+                      console.log("Tail_hello",)
+                      break;
+                    default:
+                      configurator.setConfiguration({ Camera: "Main_Camera" });
+                  }
 
                   configurator.setConfiguration({
                     SelectedNode: selectedModelNode,
                   });
+                  //  }
+
+
 
                 } else {
                   player.selectionSet.clear();
@@ -234,7 +243,8 @@
       configurator.setConfiguration({
         SelectedNode: '',
         Camera: 'Main_Camera',
-        
+        //Explode: false,
+
       });
       player.selectionSet.clear();
     }
@@ -245,9 +255,9 @@
       });
     }
 
-     function Implode() {
+    function Implode() {
       configurator.setConfiguration({
-       Explode: false,
+        Explode: false,
       });
     }
 
